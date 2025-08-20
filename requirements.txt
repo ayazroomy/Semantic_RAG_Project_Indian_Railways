@@ -1,0 +1,16 @@
+llama-index
+chromadb
+pytesseract
+fitz
+openai
+ipykernel
+llama-index-vector-stores-chroma
+pdfplumber
+pdf2image
+llama-index-readers-file
+frontend
+pymupdf
+tesseract
+pandas 
+openpyxl
+jsonpath-ng
