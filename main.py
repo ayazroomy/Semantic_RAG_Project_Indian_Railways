@@ -13,7 +13,6 @@ import pandas as pd
 from llama_index.core.indices.struct_store import JSONQueryEngine
 from trainschema import train_info_schema
 import json
-from llama_index.core.agent import AgentRunner
 from llama_index.core.tools import QueryEngineTool
 from llama_index.llms.openai import OpenAI
 from llama_index.core.agent.workflow import FunctionAgent
