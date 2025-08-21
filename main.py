@@ -105,6 +105,7 @@ def getQueryEngines():
     """
     logging.info('Initializing query engines...')
     query_engine = initialize_rag_system().as_query_engine()
+    train_info_json_obj = None
     # Load the train info JSON file
     with open("data_set/train_info.json", "r", encoding="utf-8") as f:
         train_info_json_obj = json.load(f)
