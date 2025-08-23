@@ -21,6 +21,6 @@ To run this Project Locally as an API:
 6. visit localhost:8000/docs to run the swagger page to test api
 
 
-Live Demo : Of this RAG Project (Railways AnnualReport 23-34 + Train Details)
+Live Demo : Of this RAG Project (Railways AnnualReport 23-24 + Train Details)
 -------------------------
 Demo Link:  https://ayazroomy-my-rag-space-railway.hf.space/webapp/index.html
