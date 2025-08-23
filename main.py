@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
+from fastapi.concurrency import asynccontextmanager
 from pydantic import BaseModel
 from llama_index.core import StorageContext, VectorStoreIndex
 from llama_index.core.node_parser import SentenceSplitter
@@ -19,6 +20,10 @@ from llama_index.core.agent.workflow import FunctionAgent
 from llama_index.core.workflow import Context
 import logging
 import os
+import asyncio
+from llama_index.core.query_engine.router_query_engine import RouterQueryEngine
+from llama_index.core.selectors import PydanticSingleSelector
+from fastapi.staticfiles import StaticFiles
 
 # Basic configuration for logging to the console
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -146,39 +151,77 @@ def getAgents():
         "Do not use this tool for general queries or unrelated information which is outside of this context."
     )
 )
-
-    agent = FunctionAgent(tools=[query_engine_tool_1,query_engine_tool_2], llm=OpenAI(model="gpt-4o"))
-
-    # context to hold the session/state
-    ctx = Context(agent)
-    
-    return agent, ctx
+    return query_engine_tool_1, query_engine_tool_2
 
 
-agent, ctx = getAgents()
 
-async def runQuery(agent, query, ctx):
+async def runQuery(query, ag, ct):
     """
     Runs a query using the agent and returns the result.
     """
     logging.info(f'Running query: {query}')
     try:
-        result = await agent.run(query, ctx=ctx)
+        result = await ag.run(query, ctx=ct)
         return result
     except Exception as e:
         logging.error(f"Error running query: {e}")
         return str(e)
 
+
+
+# async def main():
+#     query_engine_tool_1,query_engine_tool_2 = getAgents()
+#     agent = FunctionAgent(tools=[query_engine_tool_1,query_engine_tool_2])
+#     context = Context(agent)
+#     result = await agent.run("Provide details about train no:107", ctx=context)
+#     print(result)
+
+# if __name__ == "__main__":
+#     asyncio.run(main())
+
+# class QueryRequest(BaseModel):
+#     query: str
+
+# # Lifespan context manager
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     print("Starting up: Loading agent and tools...")
+#     query_engine_tool_1,query_engine_tool_2 = getAgents()
+#     global agent, context
+#     agent = FunctionAgent(tools=[query_engine_tool_1,query_engine_tool_2])
+#     context = Context(agent)
+ 
+#     yield  # The app runs while this context is active
+
+#     # ---- Shutdown logic ----
+#     print("Shutting down: Cleaning resources...")
+
+query_engine_tool_1,query_engine_tool_2 = getAgents()
 app = FastAPI()
 
-class QueryRequest(BaseModel):
-    query: str
+app.mount("/webapp", StaticFiles(directory="webapp"), name="static")
+# # Assign the lifespan handler to FastAPI app
+# app.router.lifespan_context = lifespan
 
 @app.post("/ask")
-async def ask_question(request: QueryRequest):
+async def ask_question(query:str):
+    router = RouterQueryEngine(
+    selector=PydanticSingleSelector.from_defaults(),  # Rule-based
+    query_engine_tools=[query_engine_tool_1,query_engine_tool_2]
+    )
     try:
-        response = await runQuery(agent, request.query, ctx)
+        response = router.query(query)
         return {"answer": str(response)}
     except Exception as e:
         return {"error": str(e)}
+
+
+
+
+
+    # try:
+    #     response = await runQuery(query, agent, context)
+    #     return {"answer": str(response)}
+    # except Exception as e:
+    #     return {"error": str(e)}
     

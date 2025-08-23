@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Train Query Web App</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="d-flex align-items-center mb-4">
+            <h1 class="me-3 mb-0">RAG-System: Railways AnnualReport + Train Info</h1>
+            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ragDetailsModal" style="margin-top: 4px">More Details</button>
+        </div>
+        <!-- RAG System Details Modal -->
+        <div class="modal fade" id="ragDetailsModal" tabindex="-1" aria-labelledby="ragDetailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ragDetailsModalLabel">About This RAG System</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>RAG-System: Railways AnnualReport + Train Info</strong> is a Retrieval-Augmented Generation (RAG) application designed to answer queries about Indian Railways using both structured and unstructured data sources.</p>
+                        <ul>
+                            <li><strong>Frameworks:</strong> Built using <b>LlamaIndex</b> and <b>OpenAI</b> LLMs for advanced question answering.</li>
+                            <li><strong>Sources:</strong> Utilizes a PDF file (Indian Railways Annual Report 2023-24) and a JSON dataset (train information) as knowledge bases.</li>
+                            <li><strong>Query Engines:</strong> Employs LlamaIndex query engines to process both natural language and structured queries.</li>
+                            <li><strong>Vector Store:</strong> Uses <b>ChromaDB</b> for efficient vector storage and retrieval of document embeddings.</li>
+                            <li><strong>API:</strong> Powered by <b>FastAPI</b> to serve responses to user queries.</li>
+                            <li><strong>Deployment:</strong> Built and deployed on <b>Hugging Face Spaces</b> for public access.</li>
+                        </ul>
+                                                <p>This system demonstrates how modern RAG architectures can combine LLMs, vector databases, and traditional APIs to deliver rich, context-aware answers from both documents and structured data.</p>
+                                                <hr>
+                                                <div class="mt-3">
+                                                    <span class="fw-bold">GitHub Repository: </span>
+                                                    <a href="https://github.com/ayazroomy/Semantic_RAG_Project_Indian_Railways" target="_blank">https://github.com/ayazroomy/Semantic_RAG_Project_Indian_Railways</a>
+                                                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Query Form Section -->
+            <div class="col-md-7">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Query the System</h5>
+                        <form id="queryForm">
+                            <div class="mb-3">
+                                <label for="queryInput" class="form-label">Enter your query</label>
+                                <input type="text" class="form-control" id="queryInput" placeholder="e.g., Provide details about train no 107">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                        <div id="loader" class="mt-3" style="display:none;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        <div id="responseBox" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Info & Sample Queries Section in one column -->
+            <div class="col-md-5">
+                <div style="max-height: 500px; overflow-y: auto;">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Sources & Data-set Used</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <a href="https://github.com/ayazroomy/Semantic_RAG_Project_Indian_Railways/blob/main/data/Indian_Railways_Annual_Report%20_23_24.pdf" target="_blank">Indian Railways Annual Report 2023-24 (PDF)</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <a href="https://github.com/ayazroomy/Semantic_RAG_Project_Indian_Railways/blob/main/data_set/train_info.csv" target="_blank">Train Info (CSV)</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <a href="https://github.com/ayazroomy/Semantic_RAG_Project_Indian_Railways/blob/main/data_set/train_info.json" target="_blank">Train Info (JSON)</a>
+                                </li>
+                            </ul>
+                            <p class="mt-3 text-muted" style="font-size: 0.95em;">These are the main data sources powering this demo. Click to view the files.</p>
+                        </div>
+                    </div>
+                    <h4>Try out Some Queries:</h4>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Train Info Queries:</h5>
+                            <ul class="mb-0">
+                                <li>Query 1: <code>provide details of train 107</code></li>
+                                <li>Query 2: <code>What is the destination of train number 128?</code></li>
+                                <li>Query 3: <code>Where does train 290 start its journey?</code></li>
+                                <li>Query 4: <code>Which days does train 421 run?</code></li>
+                                <li>Query 5: <code>Give me the source and destination of train number 54321</code></li>
+                            </ul>
+                            <p class="mt-2 text-muted" style="font-size: 0.95em;">Copy and paste any of these queries above to see how the system responds.</p>
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Railway Annual Report 23-24 Queries:</h5>
+                            <ul class="mb-0">
+                                <li>Query 1: <code>Average annual wage per employee for year 2023-24?</code></li>
+                                <li>Query 2: <code>What is New Bongaigaon- Kamakhya via Rangiya project length and anticipated cost?</code></li>
+                                <li>Query 3: <code>Total Number of Gazetted Staff Trained During 2023-24?</code></li>
+                                <li>Query 4: <code>What sustainability initiatives are described in the 2023-24 report?</code></li>
+                                <li>Query 5: <code>Give a brief overview of passenger growth in the annual report</code></li>
+                            </ul>
+                            <p class="mt-2 text-muted" style="font-size: 0.95em;">Try these queries to get insights from the Indian Railways Annual Report 2023-24.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap JS (optional, for interactivity) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.getElementById('queryForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const query = document.getElementById('queryInput').value.trim();
+        const loader = document.getElementById('loader');
+        const responseBox = document.getElementById('responseBox');
+        responseBox.innerHTML = '';
+        if (!query) {
+            responseBox.innerHTML = '<div class="alert alert-warning">Please enter a query.</div>';
+            return;
+        }
+        loader.style.display = 'block';
+        try {
+            const res = await fetch('https://ayazroomy-my-rag-space-railway.hf.space/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query })
+            });
+            const data = await res.json();
+            loader.style.display = 'none';
+            // Show only the 'answer' key if present, else fallback to 'response', else show the whole object
+            let answer = data.answer || data.response || JSON.stringify(data);
+            responseBox.innerHTML = '<div style="background:#f5f5f5;border-radius:8px;padding:16px;margin-top:8px;color:#222;font-size:1.1em;box-shadow:0 2px 8px rgba(0,0,0,0.04);">' + answer + '</div>';
+        } catch (err) {
+            loader.style.display = 'none';
+            responseBox.innerHTML = '<div class="alert alert-danger">Error: ' + err.message + '</div>';
+        }
+    });
+    </script>
+</body>
+</html>
