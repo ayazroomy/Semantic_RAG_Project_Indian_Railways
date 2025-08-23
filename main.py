@@ -15,12 +15,8 @@ from llama_index.core.indices.struct_store import JSONQueryEngine
 from trainschema import train_info_schema
 import json
 from llama_index.core.tools import QueryEngineTool
-from llama_index.llms.openai import OpenAI
-from llama_index.core.agent.workflow import FunctionAgent
-from llama_index.core.workflow import Context
 import logging
 import os
-import asyncio
 from llama_index.core.query_engine.router_query_engine import RouterQueryEngine
 from llama_index.core.selectors import PydanticSingleSelector
 from fastapi.staticfiles import StaticFiles
@@ -167,61 +163,21 @@ async def runQuery(query, ag, ct):
         logging.error(f"Error running query: {e}")
         return str(e)
 
-
-
-# async def main():
-#     query_engine_tool_1,query_engine_tool_2 = getAgents()
-#     agent = FunctionAgent(tools=[query_engine_tool_1,query_engine_tool_2])
-#     context = Context(agent)
-#     result = await agent.run("Provide details about train no:107", ctx=context)
-#     print(result)
-
-# if __name__ == "__main__":
-#     asyncio.run(main())
-
-# class QueryRequest(BaseModel):
-#     query: str
-
-# # Lifespan context manager
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     print("Starting up: Loading agent and tools...")
-#     query_engine_tool_1,query_engine_tool_2 = getAgents()
-#     global agent, context
-#     agent = FunctionAgent(tools=[query_engine_tool_1,query_engine_tool_2])
-#     context = Context(agent)
- 
-#     yield  # The app runs while this context is active
-
-#     # ---- Shutdown logic ----
-#     print("Shutting down: Cleaning resources...")
-
+# Initialize the agents and query engines
 query_engine_tool_1,query_engine_tool_2 = getAgents()
-app = FastAPI()
-
-app.mount("/webapp", StaticFiles(directory="webapp"), name="static")
-# # Assign the lifespan handler to FastAPI app
-# app.router.lifespan_context = lifespan
-
-@app.post("/ask")
-async def ask_question(query:str):
-    router = RouterQueryEngine(
+router = RouterQueryEngine(
     selector=PydanticSingleSelector.from_defaults(),  # Rule-based
     query_engine_tools=[query_engine_tool_1,query_engine_tool_2]
     )
+app = FastAPI()
+
+app.mount("/webapp", StaticFiles(directory="webapp"), name="static")
+
+@app.post("/ask")
+async def ask_question(query:str):
     try:
         response = router.query(query)
         return {"answer": str(response)}
     except Exception as e:
         return {"error": str(e)}
 
-
-
-
-
-    # try:
-    #     response = await runQuery(query, agent, context)
-    #     return {"answer": str(response)}
-    # except Exception as e:
-    #     return {"error": str(e)}
-    
