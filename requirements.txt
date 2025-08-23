@@ -13,3 +13,4 @@ openpyxl
 jsonpath-ng
 fastapi
 uvicorn
+pytest
